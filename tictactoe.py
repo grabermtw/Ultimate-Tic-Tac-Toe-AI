@@ -9,6 +9,7 @@ import numpy as np
 def string_of(state):
     valid_action_lst = valid_actions(state)
     _, board, _ = state
+    n = int(len(board) ** 0.25)
     # number of characters in a line of the string representation of the board
     str_line_len = ((4 * n + n - 1) * n + 2 * (n - 1))
     
@@ -75,7 +76,7 @@ def string_of(state):
     return board_string
 
 # Return the first index of the sub-board that contains the specified index
-def get_subboard_from_index(idx):
+def get_subboard_from_index(idx, n):
     subidx = 0
     while (n ** 2) * (subidx + 1) <= idx:
         subidx += 1
@@ -83,14 +84,15 @@ def get_subboard_from_index(idx):
 
 # Mark a sub-board as having been won by a player
 def win_subboard(board, subidx, player):
+    n = int(len(board) ** 0.25)
     for i in range(subidx, subidx + n**2):
         board[i] = "{}win".format(player)
     return board
 
 # check if the specified indices all contain the same thing
-def check_line_for_win(board, indices):
+def check_line_for_win(board, indices, big_win = False):
     for i in range(len(indices)):
-        if board[indices[i]] == 0 or "win" in str(board[indices[i]]) or board[indices[i]] != board[indices[0]]:
+        if board[indices[i]] == 0 or ("win" in str(board[indices[i]]) and not big_win) or board[indices[i]] != board[indices[0]]:
             return False
     return True
 
@@ -122,8 +124,9 @@ def check_if_line_unwinnable(state, indices, small = False):
 # move = cell_idx
 def check_for_small_winner(state):
     player, board, move = state
+    n = int(len(board) ** 0.25)
     # get first index of cell in sub-board
-    subidx = get_subboard_from_index(move)
+    subidx = get_subboard_from_index(move, n)
     idx_lists_to_check = []
     # diagonal checks
     diag1_lst = []
@@ -157,7 +160,11 @@ def check_for_small_winner(state):
 
 # check if anyone has won the entire board or if there is a tie
 def game_over(state):
-    player, board, _ = state
+    if state[2] is not None:
+        (player, board, _), _ = check_for_small_winner(state)
+    else:
+        player, board, _ = state 
+    n = int(len(board) ** 0.25)
     idx_lists_to_check = []
     diag1_lst = []
     diag2_lst = []
@@ -178,7 +185,7 @@ def game_over(state):
     # check each potential win
     unwinnables = 0
     for line in idx_lists_to_check:
-        if check_line_for_win(board, line):
+        if check_line_for_win(board, line, True):
             return True, player
         elif check_if_line_unwinnable(state, line):
             unwinnables += 1
@@ -198,10 +205,11 @@ def get_open_cells(board, range):
 # Returns a list of the valid indices that the player can play
 def valid_actions(state):
     _, board, move = state
+    n = int(len(board) ** 0.25)
     # if it's the first move return whole board
     if move is None:
         return get_open_cells(board, range(len(board)))
-    subidx = get_subboard_from_index(move)
+    subidx = get_subboard_from_index(move, n)
     new_subidx = n**2 * (move - subidx)
     # if the previous player chose a cell that would direct
     # the other player to a subboard that's already
@@ -213,13 +221,22 @@ def valid_actions(state):
     # sub-board
     return get_open_cells(board, range(new_subidx, new_subidx + n**2))
 
-def initial_state():
+# How the game starts
+def initial_state(n):
     player = "X"
     board = [0] * n**4
     move = None
     return (player, board, move)
 
+# performs the given action
+def perform_action(action, state):
+    player, board, move = state
+    board[action] = player
+    move = action
+    player = "X" if player == "O" else "O"
+    return (player, board, move)
 
+"""
 n = 3
 test_board = [0] * n**4
 for i in range(51,54):
@@ -243,12 +260,15 @@ for i in range(18,27):
 (_,test_board,_), winner = check_for_small_winner(("X",test_board, 26))
 print(winner)
 for i in range(0,9):
-    test_board[i] = "X"
-(_,test_board,_), winner = check_for_small_winner(("X",test_board, 8))
+    test_board[i] = "O"
+(_,test_board,_), winner = check_for_small_winner(("O",test_board, 8))
 print(winner)
 for i in range(54,63):
     test_board[i] = "O"
 (_,test_board,_), winner = check_for_small_winner(("X",test_board, 62))
+for i in range(72,81):
+    test_board[i] = "O"
+(_,test_board,_), winner = check_for_small_winner(("O",test_board, 62))
 print(winner)
 test_board[12] = "O"
 test_board[13] = "X"
@@ -264,3 +284,4 @@ state = ("O", test_board, 1)
 print(game_over(state))
 print(valid_actions(state))
 print(string_of(state))
+"""
