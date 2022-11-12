@@ -55,7 +55,7 @@ def string_of(state):
             board_string += lower_line
             if k < n - 1:
                 for j in range(n):
-                    board_position = i + n**2 * j + k * n + l * n**3
+                    board_position = n**2 * j + k * n + l * n**3
                     if "win" in str(board[board_position]):
                         winner = board[board_position][0]
                         board_string += "  "
@@ -231,10 +231,36 @@ def initial_state(n):
 # performs the given action
 def perform_action(action, state):
     player, board, move = state
+    board = board.copy()
     board[action] = player
     move = action
     player = "X" if player == "O" else "O"
     return (player, board, move)
+
+# return a list of all the children of a state
+def children_of(state):
+    actions = valid_actions(state)
+    children = []
+    for i in range(len(actions)):
+        children.append(perform_action(actions[i], state))
+    return children
+
+# is the state the final state in the game? (no children)
+def is_leaf(state):
+    children = children_of(state)
+    return game_over(state)[0] or len(children) == 0
+
+# return the "score" of a state.
+# A win for X is 1, a win for O is -1,
+# and a tie is 0
+def score_of(state):
+    ended, result = game_over(state)
+    if ended:
+        if result == "X":
+            return 1
+        elif result == "O":
+            return -1
+    return 0
 
 """
 n = 3
