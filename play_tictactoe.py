@@ -26,7 +26,7 @@ def play_against_player(n):
         print("Game over, it is tied.")
     else:
         winner = game_result
-        print("Game over, player %d wins." % winner)
+        print("Game over, player %s wins." % winner)
 
 def play_against_computer(n):
 
@@ -66,7 +66,7 @@ def compete(n, verbose=True):
             state = mcts(state)
         else:
             state = baseline_ai_turn(state)
-    
+    print(game_over(state))
     score = score_of(state)
     player, board, move = state
     if verbose:

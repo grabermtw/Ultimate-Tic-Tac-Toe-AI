@@ -92,7 +92,10 @@ def win_subboard(board, subidx, player):
 # check if the specified indices all contain the same thing
 def check_line_for_win(board, indices, big_win = False):
     for i in range(len(indices)):
-        if board[indices[i]] == 0 or ("win" in str(board[indices[i]]) and not big_win) or board[indices[i]] != board[indices[0]]:
+        if (board[indices[i]] == 0 or
+            ("win" in str(board[indices[i]]) and not big_win) or
+            ("win" not in str(board[indices[i]]) and big_win) or
+            board[indices[i]] != board[indices[0]]):
             return False
     return True
 
@@ -116,7 +119,7 @@ def check_if_line_unwinnable(state, indices, small = False):
                 seenX = 1
             elif "Owin" in str(board[indices[i]]):
                 seenO = 1
-            elif check_for_small_winner((player, board, indices[i]))[1] == "tied": #TODO fix this 
+            elif check_for_small_winner((player, board, indices[i]))[1] == "tied":
                 seenTie = 1
     return seenX + seenO + seenTie > 1
 
@@ -151,7 +154,7 @@ def check_for_small_winner(state):
         if check_line_for_win(board, line):
             # update the board to reflect the win
             board = win_subboard(board, subidx, board[move])
-            return (player, board, move), player
+            return (player, board, move), ("X" if player == "O" else "O")
         elif check_if_line_unwinnable(state, line, small=True):
             unwinnables += 1
     if unwinnables == len(idx_lists_to_check):
@@ -184,9 +187,10 @@ def game_over(state):
     idx_lists_to_check.append(diag2_lst)
     # check each potential win
     unwinnables = 0
+    won = False
     for line in idx_lists_to_check:
-        if check_line_for_win(board, line, True):
-            return True, player
+        if check_line_for_win(board, line, big_win=True):
+            return True, ("X" if player == "O" else "O")
         elif check_if_line_unwinnable(state, line):
             unwinnables += 1
     # tied

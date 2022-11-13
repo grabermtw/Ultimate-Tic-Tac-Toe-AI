@@ -34,8 +34,8 @@ class Node:
 
         # empirical average child utilities
         # special case to handle 0 denominator for never-visited children
-        Q = [sign * c.score_total / (c.visit_count+1) for c in children]
-        # Q = [sign * c.score_total / max(c.visit_count, 1) for c in children]
+        #Q = [sign * c.score_total / (c.visit_count+1) for c in children]
+        Q = [sign * c.score_total / max(c.visit_count, 1) for c in children]
 
         return Q
 
@@ -53,6 +53,11 @@ def uct(node):
     Q = np.array(node.Q_values())
     N = np.array(node.N_values())
     U = Q + np.sqrt(np.log(node.visit_count + 1) / (N + 1)) # +1 for 0 edge case
+    if not np.size(U):
+        print("U is empty sequence!")
+        print("length of children", len(node.children()))
+        print("Q.shape", Q.shape)
+        print("N.shape", N.shape)
     return node.children()[np.argmax(U)]
 
 #choose_child = exploit
@@ -69,7 +74,7 @@ def rollout(node):
 
 # gauge sub-optimality with rollouts
 def mcts(state):
-    num_rollouts = 2000 # don't do more than 2000 to keep AI's turn below 30 seconds
+    num_rollouts = 1400 # don't do more than 1400 to keep AI's turn below 30 seconds
     node = Node(state)
     for r in range(num_rollouts):
         rollout(node)
