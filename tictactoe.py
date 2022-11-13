@@ -243,16 +243,14 @@ def perform_action(action, state):
 
 # return a list of all the children of a state
 def children_of(state):
+    # no children if the game is over
+    if game_over(state)[0]:
+        return []
     actions = valid_actions(state)
     children = []
     for i in range(len(actions)):
         children.append(perform_action(actions[i], state))
     return children
-
-# is the state the final state in the game? (no children)
-def is_leaf(state):
-    children = children_of(state)
-    return game_over(state)[0] or len(children) == 0
 
 # return the "score" of a state.
 # A win for X is 1, a win for O is -1,

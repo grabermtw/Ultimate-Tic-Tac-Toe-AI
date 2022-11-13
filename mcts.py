@@ -53,11 +53,6 @@ def uct(node):
     Q = np.array(node.Q_values())
     N = np.array(node.N_values())
     U = Q + np.sqrt(np.log(node.visit_count + 1) / (N + 1)) # +1 for 0 edge case
-    if not np.size(U):
-        print("U is empty sequence!")
-        print("length of children", len(node.children()))
-        print("Q.shape", Q.shape)
-        print("N.shape", N.shape)
     return node.children()[np.argmax(U)]
 
 #choose_child = exploit
@@ -65,7 +60,8 @@ def uct(node):
 choose_child = uct
 
 def rollout(node):
-    if is_leaf(node.state): result = score_of(node.state)
+    # return the node's score if it's a leaf
+    if len(node.children()) == 0: result = score_of(node.state)
     else: result = rollout(choose_child(node))
     node.visit_count += 1
     node.score_total += result
