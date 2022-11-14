@@ -16,7 +16,7 @@ class Node:
     def children(self):
         # Only generate children the first time they are requested and memoize
         if self.child_list == None:
-            self.child_list = list(map(Node, children_of(self.state)))
+            self.child_list = list(map(Node, TicTacToe.children_of(self.state)))
         # Return the memoized child list thereafter
         return self.child_list
 
