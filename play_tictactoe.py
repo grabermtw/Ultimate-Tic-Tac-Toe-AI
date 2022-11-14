@@ -6,7 +6,7 @@ from mcts import mcts
 def get_user_action(state):
     actions = list(map(str, valid_actions(state)))
     player, board, move = state
-    prompt = "Player %s, choose an action from one of the numbered cells: " % (player)
+    prompt = "Player %s, choose an action from one of the numbered cells: " % (player.capitalize())
     while True:
         action = input(prompt)
         if action in actions: return int(action)
@@ -26,7 +26,7 @@ def play_against_player(n):
         print("Game over, it is tied.")
     else:
         winner = game_result
-        print("Game over, player %s wins." % winner)
+        print("Game over, player %s wins." % winner.capitalize())
 
 def play_against_computer(n):
 
@@ -48,7 +48,7 @@ def play_against_computer(n):
         print("Game over, it is tied.")
     else:
         winner = game_result
-        print("Game over, player %s wins." % winner)
+        print("Game over, player %s wins." % winner.capitalize())
         print("You beat the computer!" if winner == "O" else "The computer beat you!")
 
 
@@ -59,7 +59,7 @@ def compete(n, verbose=True):
     while not game_over(state)[0]:
 
         player, board, move = state
-        playeridx = 0 if player == "X" else 1
+        playeridx = 0 if player == "x" else 1
         if verbose: print(string_of(state))
         if verbose: print("--- %s's turn --->" % ["Better","Baseline"][playeridx])
         if playeridx == 0:
