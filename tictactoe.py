@@ -39,7 +39,7 @@ def string_of(state):
                         else:
                             upper_line += "    "
                         if board[board_position] != 0:
-                            lower_line += "({}) ".format(board[board_position])
+                            lower_line += "({}) ".format(board[board_position][0])
                         else:
                             lower_line += "    "
                         if i < n - 1:
@@ -83,10 +83,11 @@ def get_subboard_from_index(idx, n):
     return subidx * n**2
 
 # Mark a sub-board as having been won by a player
-def win_subboard(board, subidx, player):
+def complete_subboard(board, subidx, player, result):
     n = int(len(board) ** 0.25)
     for i in range(subidx, subidx + n**2):
-        board[i] = "{}win".format(player)
+        # result will be either "win" or "tie"
+        board[i] = "{}{}".format(player, result)
     return board
 
 # check if the specified indices all contain the same thing
@@ -102,7 +103,7 @@ def check_line_for_win(board, indices, big_win = False):
 # used to determine if there's a tie
 # if all lines are unwinnable then there must be a tie
 def check_if_line_unwinnable(state, indices, small = False):
-    player, board, _ = state
+    _, board, _ = state
     seenX = 0
     seenO = 0
     seenTie = 0
@@ -119,9 +120,9 @@ def check_if_line_unwinnable(state, indices, small = False):
                 seenX = 1
             elif "Owin" in str(board[indices[i]]):
                 seenO = 1
-            elif check_for_small_winner((player, board, indices[i]))[1] == "tied":
-                seenTie = 1
-    return seenX + seenO + seenTie > 1
+            elif "tie" in str(board[indices[i]]):
+                return True
+    return seenX + seenO > 1
 
 # check if anyone has won a small board
 # move = cell_idx
@@ -153,11 +154,12 @@ def check_for_small_winner(state):
     for line in idx_lists_to_check:
         if check_line_for_win(board, line):
             # update the board to reflect the win
-            board = win_subboard(board, subidx, board[move])
+            board = complete_subboard(board, subidx, board[move], "win")
             return (player, board, move), ("X" if player == "O" else "O")
         elif check_if_line_unwinnable(state, line, small=True):
             unwinnables += 1
     if unwinnables == len(idx_lists_to_check):
+        board = complete_subboard(board, subidx, board[move], "tie")
         return (player, board, move), "tied"
     return (player, board, move), None
 
@@ -219,7 +221,7 @@ def valid_actions(state):
     # the other player to a subboard that's already
     # been won or there are no available cells,
     # then they get to pick any cell
-    if "win" in str(board[new_subidx]) or 0 not in board[new_subidx:new_subidx + n**2]:
+    if "win" in str(board[new_subidx]) or "tie" in str(board[new_subidx]):
         return get_open_cells(board, range(len(board)))
     # Otherwise it'll be the open cells in the corresponding
     # sub-board
@@ -241,28 +243,7 @@ def perform_action(action, state):
     player = "X" if player == "O" else "O"
     return (player, board, move)
 
-# return a list of all the children of a state
-def children_of(state):
-    # no children if the game is over
-    if game_over(state)[0]:
-        return []
-    actions = valid_actions(state)
-    children = []
-    for i in range(len(actions)):
-        children.append(perform_action(actions[i], state))
-    return children
 
-# return the "score" of a state.
-# A win for X is 1, a win for O is -1,
-# and a tie is 0
-def score_of(state):
-    ended, result = game_over(state)
-    if ended:
-        if result == "X":
-            return 1
-        elif result == "O":
-            return -1
-    return 0
 
 """
 n = 3
