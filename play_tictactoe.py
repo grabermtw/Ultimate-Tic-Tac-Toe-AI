@@ -6,7 +6,7 @@ from mcts import mcts
 def get_user_action(state):
     actions = list(map(str, valid_actions(state)))
     player, board, move = state
-    prompt = "Player %s, choose an action from one of the numbered cells: " % (player.capitalize())
+    prompt = "Player %s, choose an action from one of the numbered cells: " % (player)
     while True:
         action = input(prompt)
         if action in actions: return int(action)
@@ -26,48 +26,54 @@ def play_against_player(n):
         print("Game over, it is tied.")
     else:
         winner = game_result
-        print("Game over, player %s wins." % winner.capitalize())
+        print("Game over, player %s wins." % winner)
 
 def play_against_computer(n):
 
     state = initial_state(n)
-    while not game_over(state)[0]:
+    ended = False
+    game_result = None
+    while not ended:
 
         player, board, move = state
         print(string_of(state))
-        if player == "O":
+        if player == "o":
             action = get_user_action(state)
             state = perform_action(action, state)
+            ended, game_result = game_over(state)
         else:
             print("--- AI's turn --->")
-            state = mcts(state)
+            state, ended, game_result = mcts(state)
+           
     
     print(string_of(state))
-    game_result = game_over(state)[1]
+    game_result = game_result
     if game_result == "tied":
         print("Game over, it is tied.")
     else:
         winner = game_result
-        print("Game over, player %s wins." % winner.capitalize())
-        print("You beat the computer!" if winner == "O" else "The computer beat you!")
+        print("Game over, player %s wins." % winner)
+        print("You beat the computer!" if winner == "o" else "The computer beat you!")
 
 
 # runs a competitive game between two AIs:
 # better_evaluation (as player 0) vs simple_evaluation (as player 1)
 def compete(n, verbose=True):
     state = initial_state(n)
-    while not game_over(state)[0]:
+    ended = False
+    while not ended:
 
         player, board, move = state
         playeridx = 0 if player == "x" else 1
         if verbose: print(string_of(state))
         if verbose: print("--- %s's turn --->" % ["Better","Baseline"][playeridx])
         if playeridx == 0:
-            state = mcts(state)
+            state, ended, result = mcts(state)
         else:
             state = baseline_ai_turn(state)
-    print(game_over(state))
-    score = score_of(state)
+            ended, result = game_over(state)
+    
+    score = 1 if result == "x" else 0 if result == "tied" else -1
     player, board, move = state
     if verbose:
         print(string_of(state))
@@ -101,6 +107,3 @@ if __name__ == "__main__":
         play_against_computer(n)
     else:
         compete(n, config["verbose"])
-    
-    
-    

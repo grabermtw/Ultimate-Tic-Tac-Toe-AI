@@ -12,11 +12,28 @@ class Node:
         self.score_total = 0
         self.score_estimate = 0
         self.child_list = None
+        self.ended = False
+        self.result = None
+
+    def score_of(self):
+        if self.ended:
+            if self.result == "x":
+                return 1
+            elif self.result == "o":
+                return -1
+        return 0
 
     def children(self):
         # Only generate children the first time they are requested and memoize
         if self.child_list == None:
-            self.child_list = list(map(Node, children_of(self.state)))
+            # no children if the game is over
+            self.ended, self.result = game_over(self.state)
+            children = []
+            if not self.ended:
+                actions = valid_actions(self.state)
+                for i in range(len(actions)):
+                    children.append(perform_action(actions[i], self.state))
+            self.child_list = list(map(Node, children))
         # Return the memoized child list thereafter
         return self.child_list
 
@@ -61,7 +78,7 @@ choose_child = uct
 
 def rollout(node):
     # return the node's score if it's a leaf
-    if len(node.children()) == 0: result = score_of(node.state)
+    if len(node.children()) == 0: result = node.score_of()
     else: result = rollout(choose_child(node))
     node.visit_count += 1
     node.score_total += result
@@ -81,4 +98,4 @@ def mcts(state):
     for i in range(len(children)):
         if children[i].score_estimate > best_child.score_estimate:
             best_child = children[i]
-    return best_child.state
+    return best_child.state, best_child.ended, best_child.result

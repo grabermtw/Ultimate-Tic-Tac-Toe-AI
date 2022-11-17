@@ -1,11 +1,11 @@
 import numpy as np
 
 # each index corresponds to each board cell's index
-# X - player X owns the cell
-# O - player O owns the cell
-# 0 - No player owns the cell
-# Xwin - player X won that tictactoe sub-board
-# Owin - player O won that tictactoe sub-board
+# x (lower case) - player X owns the cell
+# o (lower case) - player O owns the cell
+# _ - No player owns the cell
+# X (capitalized) - player X won that tictactoe sub-board
+# O (capitalized) - player O won that tictactoe sub-board
 def string_of(state):
     valid_action_lst = valid_actions(state)
     _, board, _ = state
@@ -85,24 +85,11 @@ def get_subboard_from_index(idx, n):
 # Mark a sub-board as having been won by a player
 def win_subboard(board, subidx, player):
     n = int(len(board) ** 0.25)
-    """
-    for i in range(subidx, subidx + n**2):
-        board[i] = "{}win".format(player)
-    """
     board[subidx:subidx + n**2] = player.capitalize()
     return board
 
 # check if the specified indices all contain the same thing
 def check_line_for_win(board, indices, big_win = False):
-    """
-    for i in range(len(indices)):
-        if (board[indices[i]] == 0 or
-            ("win" in str(board[indices[i]]) and not big_win) or
-            ("win" not in str(board[indices[i]]) and big_win) or
-            board[indices[i]] != board[indices[0]]):
-            return False
-    return True
-    """
     if not big_win:
         return np.all(board[indices] == "x") or np.all(board[indices] == "o")
     else:
@@ -199,13 +186,6 @@ def game_over(state):
 
 # Returns all cells that haven't been claimed in the range
 def get_open_cells(board, range):
-    """
-    idx_lst = []
-    for i in range:
-        if board[i] == 0:
-            idx_lst.append(i)
-    return idx_lst
-    """
     return np.argwhere(board[range[0]:range[1]] == "_").flatten() + range[0]
 
 # Returns a list of the valid indices that the player can play
@@ -243,28 +223,6 @@ def perform_action(action, state):
     player = "x" if player == "o" else "o"
     return (player, board, move)
 
-# return a list of all the children of a state
-def children_of(state):
-    # no children if the game is over
-    if game_over(state)[0]:
-        return []
-    actions = valid_actions(state)
-    children = []
-    for i in range(len(actions)):
-        children.append(perform_action(actions[i], state))
-    return children
-
-# return the "score" of a state.
-# A win for X is 1, a win for O is -1,
-# and a tie is 0
-def score_of(state):
-    ended, result = game_over(state)
-    if ended:
-        if result == "x":
-            return 1
-        elif result == "o":
-            return -1
-    return 0
 
 """
 n = 3
