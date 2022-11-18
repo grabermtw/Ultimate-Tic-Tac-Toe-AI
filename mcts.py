@@ -87,7 +87,7 @@ def rollout(node):
 
 # gauge sub-optimality with rollouts
 def mcts(state):
-    num_rollouts = 100 # don't do more than 1400 to keep AI's turn below 30 seconds
+    num_rollouts = 4000 # keep AI's turn below 30 seconds
     node = Node(state)
     for r in range(num_rollouts):
         rollout(node)
