@@ -30,3 +30,7 @@ optional arguments:
   -c, --computer  play against the computer (default: False)
   -v, --verbose   display each board if running the computer vs. computer simulation (default: False)
 ```
+
+#### Dependencies
+
+- [NumPy](https://numpy.org/)
