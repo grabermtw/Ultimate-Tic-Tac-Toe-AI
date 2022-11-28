@@ -164,7 +164,7 @@ def game_over(state):
     idx_lists_to_check = []
     diag1_lst = np.zeros(n, dtype=int)
     diag2_lst = np.zeros(n, dtype=int)
-    for i in range(n):
+    """for i in range(n):
         # horizontal and vertical
         hor_lst = np.zeros(n, dtype=int)
         vert_lst = np.zeros(n, dtype=int)
@@ -177,7 +177,17 @@ def game_over(state):
         diag1_lst[i] = n**3 * i + n**2 * i
         diag2_lst[i] = n**3 * (n - (i + 1)) + n**2 * i
     idx_lists_to_check.append(diag1_lst)
-    idx_lists_to_check.append(diag2_lst)
+    idx_lists_to_check.append(diag2_lst)"""
+
+    i = np.arange(n).reshape(n,1)
+    j = i.T
+    hor_lsts = i * n**3 + j * n**2
+    vert_lsts = j * n**3 + i * n**2
+    diag1_lst = n**3 * j + n**2 * j # j, not i, to keep it as a row vector
+    diag2_lst = n**3 * (n - (j + 1)) + n**2 * j
+    itlv = np.concatenate((hor_lsts, vert_lsts), axis=1).reshape(-1, n)
+    idx_lists_to_check = list(np.concatenate((itlv, diag1_lst, diag2_lst), axis=0))
+
     # check each potential win
     unwinnables = 0
     for line in idx_lists_to_check:
