@@ -118,7 +118,7 @@ def check_for_small_winner(state):
     # diagonal checks
     diag1_lst = np.zeros(n, dtype=int)
     diag2_lst = np.zeros(n, dtype=int)
-    for i in range(n):
+    """for i in range(n):
         # horizontal and vertical checks
         hor_lst = np.zeros(n, dtype=int)
         vert_lst = np.zeros(n, dtype=int)
@@ -131,7 +131,16 @@ def check_for_small_winner(state):
         diag1_lst[i] = subidx + n * i + i
         diag2_lst[i] = subidx + n * (n - (i + 1)) + i
     idx_lists_to_check.append(diag1_lst)
-    idx_lists_to_check.append(diag2_lst)
+    idx_lists_to_check.append(diag2_lst)"""
+    i = np.arange(n).reshape(n,1)
+    j = i.T
+    hor_lsts = subidx + n * i + j
+    vert_lsts = subidx + n * j + i
+    diag1_lst = subidx + n * j + j # j, not i, to keep it as a row vector
+    diag2_lst = subidx + n * (n - (j + 1)) + j
+    itlv = np.concatenate((hor_lsts, vert_lsts), axis=1).reshape(-1, n)
+    idx_lists_to_check = list(np.concatenate((itlv, diag1_lst, diag2_lst), axis=0))
+    
     # check each potential win
     unwinnables = 0
     for line in idx_lists_to_check:
