@@ -77,10 +77,7 @@ def string_of(state):
 
 # Return the first index of the sub-board that contains the specified index
 def get_subboard_from_index(idx, n):
-    subidx = 0
-    while (n ** 2) * (subidx + 1) <= idx:
-        subidx += 1
-    return subidx * n**2
+    return (idx // (n**2)) * (n ** 2)
 
 # Mark a sub-board as having been won by a player
 def win_subboard(board, subidx, player):

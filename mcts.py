@@ -14,6 +14,7 @@ class Node:
         self.child_list = None
         self.ended = False
         self.result = None
+        self.parent = None
 
     def score_of(self):
         if self.ended:
@@ -75,7 +76,7 @@ def uct(node):
 #choose_child = exploit
 #choose_child = explore
 choose_child = uct
-
+"""
 def rollout(node):
     # return the node's score if it's a leaf
     if len(node.children()) == 0: result = node.score_of()
@@ -83,6 +84,23 @@ def rollout(node):
     node.visit_count += 1
     node.score_total += result
     node.score_estimate = node.score_total / node.visit_count
+    return result
+"""
+
+def rollout(node):
+    # descend
+    current_node = node
+    while len(current_node.children()) != 0:
+        next_node = choose_child(current_node)
+        next_node.parent = current_node
+        current_node = next_node
+    result = current_node.score_of()
+    # ascend
+    while current_node is not None:
+        current_node.visit_count += 1
+        current_node.score_total += result
+        current_node.score_estimate = current_node.score_total / current_node.visit_count
+        current_node = current_node.parent
     return result
 
 # gauge sub-optimality with rollouts
