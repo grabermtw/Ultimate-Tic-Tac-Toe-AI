@@ -108,7 +108,7 @@ if __name__ == "__main__":
     
     # To keep the max time MCTS takes to decide each action beneath 30 seconds,
     # assign the number of rollouts based on the size of the board
-    rollout_mappings = {3: 3500, 4: 350, 5: 35, 6: 3, 7: 1}
+    rollout_mappings = {3: 3000, 4: 300, 5: 30, 6: 3, 7: 1}
 
     iter = 1
     if config['iterations'] is not None:
