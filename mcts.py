@@ -88,6 +88,7 @@ def rollout(node):
 """
 
 def rollout(node):
+    node_count = 0
     # descend
     current_node = node
     while len(current_node.children()) != 0:
@@ -100,16 +101,21 @@ def rollout(node):
         current_node.visit_count += 1
         current_node.score_total += result
         current_node.score_estimate = current_node.score_total / current_node.visit_count
+        # Increment the node_count only if this node hasn't been visited already.
+        # From the assignment description: We want to report "number of nodes processed,"
+        # not the number of times we processed nodes.
+        if current_node.visit_count == 1:
+            node_count += 1
         current_node = current_node.parent
-    return result
+    return node_count
 
 
 # gauge sub-optimality with rollouts
-def mcts(state):
-    num_rollouts = 1000 # keep AI's turn below 30 seconds
+def mcts(state, num_rollouts):
     node = Node(state)
+    nodes_processed = 0
     for r in range(num_rollouts):
-        rollout(node)
+        nodes_processed += rollout(node)
         #if r % (num_rollouts // 10) == 0: print(r, node.score_estimate)
     # return best child
     children = node.children()
@@ -117,4 +123,4 @@ def mcts(state):
     for i in range(len(children)):
         if children[i].score_estimate > best_child.score_estimate:
             best_child = children[i]
-    return best_child.state, best_child.ended, best_child.result
+    return best_child.state, best_child.ended, best_child.result, nodes_processed
