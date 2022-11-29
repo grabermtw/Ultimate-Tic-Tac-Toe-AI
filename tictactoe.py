@@ -84,7 +84,10 @@ def complete_subboard(board, subidx, player, result):
     n = int(len(board) ** 0.25)
     for i in range(subidx, subidx + n**2):
         # result will be either "win" or "tie"
-        board[i] = "{}{}".format(player, result)
+        if result == "tie":
+            board[i] = "{}{}".format(board[i], result)
+        else:
+            board[i] = "{}{}".format(player, result)
     return board
 
 # check if the specified indices all contain the same thing
