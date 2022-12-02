@@ -44,8 +44,12 @@ def play_against_computer(n, num_rollouts):
             ended, game_result = game_over(state)
         else:
             print("--- AI's turn --->")
+            print("AI is thinking...")
             state, ended, game_result, _ = mcts(state, num_rollouts)
-           
+            prompt = "AI has chosen an action. Press Enter to continue."
+            
+            input(prompt)
+                
     
     print(string_of(state))
     game_result = game_result
@@ -98,17 +102,17 @@ if __name__ == "__main__":
     parser.add_argument("-v", "--verbose", action="store_true", help="display each board if running the computer vs. computer simulation")
     parser.add_argument("-i", "--iterations", help="simulate the game for the specified number of times")
     parser.add_argument("-f", "--filename", help="save the results of the simulation in the specified filename suffix. Simulation info will be prepended in the filename.")
-    parser.add_argument("n-size", help="width (or length) of n by n board, must be at least 3 and no greater than 7")
+    parser.add_argument("n-size", help="width (or length) of n by n board, must be at least 2 and no greater than 7")
     args = parser.parse_args()
     config = vars(args)
     n = int(config['n-size'])
-    if n < 3 or n > 7:
-        print("Invalid n-size. n-size must be at least 3 and no more than 7.")
+    if n < 2 or n > 7:
+        print("Invalid n-size. n-size must be at least 2 and no more than 7.")
         exit(1)
     
     # To keep the max time MCTS takes to decide each action beneath 30 seconds,
     # assign the number of rollouts based on the size of the board
-    rollout_mappings = {3: 3000, 4: 300, 5: 20, 6: 2, 7: 1}
+    rollout_mappings = {2: 30000, 3: 3000, 4: 300, 5: 20, 6: 2, 7: 1}
 
     iter = 1
     if config['iterations'] is not None:
@@ -128,7 +132,7 @@ if __name__ == "__main__":
                 csvwriter = csv.writer(csvfile, delimiter=',')
                 csvwriter.writerow(["Iteration", "Score", "Nodes Processed"])
                 for i in range(iter):
-                    print("Iteration", str(i) + ":")
+                    print("Game #", str(i + 1), "of", iter)
                     score, total_nodes = compete(n, rollout_mappings[n], config["verbose"])
                     csvwriter.writerow([i, score, total_nodes])
                     # flush so that this can be interrupted if needed without losing progress
