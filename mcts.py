@@ -73,8 +73,6 @@ def uct(node):
     U = Q + np.sqrt(np.log(node.visit_count + 1) / (N + 1)) # +1 for 0 edge case
     return node.children()[np.argmax(U)]
 
-#choose_child = exploit
-#choose_child = explore
 choose_child = uct
 """
 def rollout(node):

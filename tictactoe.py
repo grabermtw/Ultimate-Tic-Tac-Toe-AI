@@ -6,6 +6,8 @@ import numpy as np
 # 0 - No player owns the cell
 # Xwin - player X won that tictactoe sub-board
 # Owin - player O won that tictactoe sub-board
+# Xtie - the sub-board is tied but this cell contains X
+# Otie - the sub-board is tied but this cell contains O
 def string_of(state):
     valid_action_lst = valid_actions(state)
     _, board, _ = state
@@ -106,7 +108,6 @@ def check_if_line_unwinnable(state, indices, small = False):
     _, board, _ = state
     seenX = 0
     seenO = 0
-    seenTie = 0
     # if we see both X and O in the line then it's unwinnable
     if small:
         for i in range(len(indices)):
