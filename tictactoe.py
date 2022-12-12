@@ -196,7 +196,7 @@ def game_over(state):
         elif check_if_line_unwinnable(state, line):
             unwinnables += 1
     # tied
-    if unwinnables == len(idx_lists_to_check):
+    if unwinnables == len(idx_lists_to_check) or len(valid_actions(state)) == 0:
         return True, "tied"
     return False, None
 
@@ -225,7 +225,11 @@ def valid_actions(state):
         return get_open_cells(board, range(len(board)))
     # Otherwise it'll be the open cells in the corresponding
     # sub-board
-    return get_open_cells(board, range(new_subidx, new_subidx + n**2))
+    open_cells = get_open_cells(board, range(new_subidx, new_subidx + n**2))
+    # check for undocumented tie
+    if len(open_cells) == 0:
+        open_cells = get_open_cells(board, range(len(board)))
+    return open_cells
 
 # How the game starts
 def initial_state(n):

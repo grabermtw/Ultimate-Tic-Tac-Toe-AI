@@ -4,6 +4,8 @@
 # by Prof. Garret Katz
 
 from tictactoe import *
+from neural_network_tic_tac_toe import encode
+import torch as tr
 
 class Node:
     def __init__(self, state):
@@ -74,6 +76,19 @@ def uct(node):
     return node.children()[np.argmax(U)]
 
 choose_child = uct
+
+# choose a child based on the Neural Net's utility prediction
+def choose_child_net(node, net):
+    max_util = -100000
+    max_child = None
+    for child in node.children():
+        tens = tr.tensor(list(map(float, encode(child.state))))
+        pred_util = net(tens.reshape(-1,tens.shape[0]))
+        if pred_util > max_util:
+            max_util = pred_util
+            max_child = child
+    return max_child
+
 """
 def rollout(node):
     # return the node's score if it's a leaf
@@ -85,12 +100,15 @@ def rollout(node):
     return result
 """
 
-def rollout(node):
+def rollout(node, net = None):
     node_count = 0
     # descend
     current_node = node
     while len(current_node.children()) != 0:
-        next_node = choose_child(current_node)
+        if net is None:
+            next_node = choose_child(current_node)
+        else:
+            next_node = choose_child_net(current_node, net)
         next_node.parent = current_node
         current_node = next_node
     result = current_node.score_of()
@@ -109,11 +127,11 @@ def rollout(node):
 
 
 # gauge sub-optimality with rollouts
-def mcts(state, num_rollouts):
+def mcts(state, num_rollouts, net = None):
     node = Node(state)
     nodes_processed = 0
     for r in range(num_rollouts):
-        nodes_processed += rollout(node)
+        nodes_processed += rollout(node, net)
         #if r % (num_rollouts // 10) == 0: print(r, node.score_estimate)
     # return best child
     children = node.children()
@@ -121,4 +139,4 @@ def mcts(state, num_rollouts):
     for i in range(len(children)):
         if children[i].score_estimate > best_child.score_estimate:
             best_child = children[i]
-    return best_child.state, best_child.ended, best_child.result, nodes_processed
+    return best_child.state, best_child.ended, best_child.result, nodes_processed, best_child.score_total
